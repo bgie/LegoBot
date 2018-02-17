@@ -24,7 +24,6 @@ const QByteArray disconnectSlaveCommand("BYE");
 SlaveConnection::SlaveConnection(QObject *parent)
     : QObject(parent)
     , _connected(false)
-    , _stayingAliveTimer()
 {
     _stayingAliveTimer.setInterval(stayingAliveIntervalInMsecs);
     _stayingAliveTimer.setSingleShot(false);

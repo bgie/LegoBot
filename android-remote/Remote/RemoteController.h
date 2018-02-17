@@ -26,6 +26,8 @@ class RemoteController : public QObject
     Q_OBJECT
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString sensorDebug READ sensorDebug NOTIFY sensorDebugChanged)
+    Q_PROPERTY(qreal leftSpeed READ leftSpeed WRITE setLeftSpeed NOTIFY leftSpeedChanged)
+    Q_PROPERTY(qreal rightSpeed READ rightSpeed WRITE setRightSpeed NOTIFY rightSpeedChanged)
 
 public:
     explicit RemoteController(QObject *parent = nullptr);
@@ -34,13 +36,22 @@ public:
 
     QString title() const;
     QString sensorDebug() const;
+    qreal leftSpeed() const;
+    qreal rightSpeed() const;
 
     Q_INVOKABLE void disconnect();
 
+public slots:
+    void setLeftSpeed(qreal leftSpeed);
+    void setRightSpeed(qreal rightSpeed);
+
 signals:
     void titleChanged(QString title);
-    void sensorDebugChanged(QString sensorDebug);
     void applicationSuspended();
+
+    void sensorDebugChanged(QString sensorDebug);
+    void leftSpeedChanged(qreal leftSpeed);
+    void rightSpeedChanged(qreal rightSpeed);
 
 private slots:
     void onTiltReadingChanged();
@@ -53,6 +64,8 @@ private:
     SlaveConnection * _connection;
     QTiltSensor _tiltSensor;
     QString _sensorDebug;
+    qreal _leftSpeed;
+    qreal _rightSpeed;
 };
 
 #endif // REMOTECONTROLLER_H

@@ -26,5 +26,6 @@
         <file>img/wheel.png</file>
         <file>Info/InfoPage.qml</file>
         <file>Info/LinkLabel.qml</file>
+        <file>Remote/WheelSpeedIndicator.qml</file>
     </qresource>
 </RCC>

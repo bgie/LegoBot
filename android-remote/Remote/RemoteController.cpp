@@ -18,9 +18,41 @@
 #include <QTiltReading>
 #include <QGuiApplication>
 
+namespace
+{
+const qreal TILT_RANGE = 45;
+const qreal TILT_Y_OFFSET = 45;
+const qreal TILT_DEAD_ZONE = 12;
+
+qreal tiltToPercentage(qreal tilt)
+{
+    if(tilt >= - TILT_DEAD_ZONE && tilt <= TILT_DEAD_ZONE)
+    {
+        return 0;
+    }
+    else {
+        return (tilt * 100) / TILT_RANGE;
+    }
+}
+qreal clampPercentage(qreal p)
+{
+    if(p <= -100) {
+        return -100;
+    }
+    else if( p >= 100) {
+        return 100;
+    }
+    else {
+        return p;
+    }
+}
+}
+
 RemoteController::RemoteController(QObject *parent)
     : QObject(parent)
     , _connection(nullptr)
+    , _leftSpeed(0)
+    , _rightSpeed(0)
 {
     connect(qGuiApp, &QGuiApplication::applicationStateChanged
             , this, &RemoteController::onApplicationStateChanged);
@@ -74,6 +106,34 @@ void RemoteController::disconnect()
     if(_connection) _connection->disconnect();
 }
 
+void RemoteController::setLeftSpeed(qreal leftSpeed)
+{
+    if (qFuzzyCompare(_leftSpeed, leftSpeed))
+        return;
+
+    _leftSpeed = leftSpeed;
+    emit leftSpeedChanged(_leftSpeed);
+}
+
+void RemoteController::setRightSpeed(qreal rightSpeed)
+{
+    if (qFuzzyCompare(_rightSpeed, rightSpeed))
+        return;
+
+    _rightSpeed = rightSpeed;
+    emit rightSpeedChanged(_rightSpeed);
+}
+
+qreal RemoteController::leftSpeed() const
+{
+    return _leftSpeed;
+}
+
+qreal RemoteController::rightSpeed() const
+{
+    return _rightSpeed;
+}
+
 void RemoteController::setSensorDebug(QString sensorDebug)
 {
     if (_sensorDebug == sensorDebug)
@@ -87,7 +147,22 @@ void RemoteController::onTiltReadingChanged()
 {
     auto reading = _tiltSensor.reading();
 
-    setSensorDebug(QString("x: %1, y: %2").arg(reading->xRotation()).arg(reading->yRotation()));
+    qreal x = reading->xRotation();
+    qreal y = reading->yRotation();
+    setSensorDebug(QString("x: %1, y: %2")
+                   .arg(x, 2, 'f', 1)
+                   .arg(y, 2, 'f', 1)
+                   );
+
+//    qreal forward = tiltToPercentage(y + TILT_Y_OFFSET);
+//    qreal turn = tiltToPercentage(x);
+//    setLeftSpeed(clampPercentage(forward + turn));
+//    setRightSpeed(clampPercentage(forward - turn));
+
+    qreal left = tiltToPercentage(y + TILT_Y_OFFSET + x);
+    qreal right = tiltToPercentage(y + TILT_Y_OFFSET - x);
+    setLeftSpeed(clampPercentage(left));
+    setRightSpeed(clampPercentage(right));
 }
 
 void RemoteController::onApplicationStateChanged(Qt::ApplicationState state)

@@ -16,6 +16,7 @@
 */
 import QtQuick 2.9
 import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.3
 
 import androidremote 1.0
 
@@ -38,11 +39,36 @@ Page {
     title: controller.title
 
     Label {
+        id: sensorLabel
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
 
         text: controller.sensorDebug
         horizontalAlignment: Text.AlignHCenter
+    }
+    RowLayout {
+        anchors.top: sensorLabel.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+
+        WheelSpeedIndicator {
+            id: leftSpeed
+            mirror: true
+            size: 128
+            Layout.alignment: Qt.AlignCenter
+            speed: controller.leftSpeed
+        }
+        Item {
+            Layout.fillWidth: true
+        }
+        WheelSpeedIndicator {
+            id: righSpeed
+            mirror: false
+            size: 128
+            Layout.alignment: Qt.AlignCenter
+            speed: controller.rightSpeed
+        }
     }
 }
