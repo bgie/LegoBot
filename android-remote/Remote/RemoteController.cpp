@@ -20,9 +20,9 @@
 
 namespace
 {
-const qreal TILT_RANGE = 45;
-const qreal TILT_Y_OFFSET = 45;
-const qreal TILT_DEAD_ZONE = 12;
+const qreal TILT_RANGE = 30;
+const qreal TILT_Y_OFFSET = 40;
+const qreal TILT_DEAD_ZONE = 4;
 
 qreal tiltToPercentage(qreal tilt)
 {
@@ -154,15 +154,11 @@ void RemoteController::onTiltReadingChanged()
                    .arg(y, 2, 'f', 1)
                    );
 
-//    qreal forward = tiltToPercentage(y + TILT_Y_OFFSET);
-//    qreal turn = tiltToPercentage(x);
-//    setLeftSpeed(clampPercentage(forward + turn));
-//    setRightSpeed(clampPercentage(forward - turn));
-
-    qreal left = tiltToPercentage(y + TILT_Y_OFFSET + x);
-    qreal right = tiltToPercentage(y + TILT_Y_OFFSET - x);
-    setLeftSpeed(clampPercentage(left));
-    setRightSpeed(clampPercentage(right));
+    qreal left = clampPercentage(tiltToPercentage(y + TILT_Y_OFFSET + x));
+    qreal right = clampPercentage(tiltToPercentage(y + TILT_Y_OFFSET - x));
+    setLeftSpeed(left);
+    setRightSpeed(right);
+    if(_connection) _connection->sendMotorSpeeds(left, right);
 }
 
 void RemoteController::onApplicationStateChanged(Qt::ApplicationState state)

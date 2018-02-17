@@ -34,6 +34,7 @@ public:
     QString name() const;
 
     void connect(QString name, QHostAddress ip, int port);
+    void sendMotorSpeeds(qreal leftPercentage, qreal rightPercentage);
     void disconnect();
 
 signals:
@@ -51,6 +52,7 @@ private:
     QHostAddress _ip;
     int _port;
     QString m_name;
+    QByteArray _lastMotorSpeedCommand;
 };
 
 

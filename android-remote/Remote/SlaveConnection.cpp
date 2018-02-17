@@ -16,10 +16,20 @@
 */
 #include "SlaveConnection.h"
 
+namespace
+{
 const int stayingAliveIntervalInMsecs = 2500;
 const QByteArray connectSlaveCommand("CONNECT");
 const QByteArray stayingAliveCommand("HAH");
 const QByteArray disconnectSlaveCommand("BYE");
+const QByteArray motorSpeedCommand("MOTOR");
+
+QByteArray motorSpeedValue(qreal speedAsPercentage)
+{
+    int val = static_cast<int>(qRound(1024 * speedAsPercentage / 100));
+    return QByteArray(" ") + QByteArray::number(val, 10);
+}
+}
 
 SlaveConnection::SlaveConnection(QObject *parent)
     : QObject(parent)
@@ -50,9 +60,26 @@ void SlaveConnection::connect(QString name, QHostAddress ip, int port)
     _connected = true;
 
     _socket.writeDatagram(connectSlaveCommand, _ip, _port);
+    _lastMotorSpeedCommand.clear();
     _stayingAliveTimer.start();
 
     emit nameChanged(_name);
+}
+
+void SlaveConnection::sendMotorSpeeds(qreal leftPercentage, qreal rightPercentage)
+{
+    if(_connected)
+    {
+        QByteArray cmd = motorSpeedCommand
+                            + motorSpeedValue(leftPercentage)
+                            + motorSpeedValue(rightPercentage);
+
+        if(_lastMotorSpeedCommand != cmd)
+        {
+            _lastMotorSpeedCommand = cmd;
+            _socket.writeDatagram(cmd, _ip, _port);
+        }
+    }
 }
 
 void SlaveConnection::disconnect()
