@@ -1,1 +1,3 @@
 # LegoBot
+
+TODO: write readme

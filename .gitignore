@@ -30,3 +30,5 @@
 *.exe
 *.out
 *.app
+
+esp8266/udp_to_motor/wifi_password\.h
